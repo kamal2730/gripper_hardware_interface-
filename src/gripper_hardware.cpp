@@ -80,15 +80,16 @@ GripperHardware::read(const rclcpp::Time &, const rclcpp::Duration &)
 {
   float angle_deg = 0.0f;
   float effort = 0.0f;
+  float speed = 0.0f;
 
-  if (!servo_->getPosition(angle_deg) || !servo_->getEffort(effort))
+  if (!servo_->getPosition(angle_deg) || !servo_->getEffort(effort) || !servo_->getSpeed(speed))
   {
-    RCLCPP_WARN(logger_, "Failed to read gripper position or effort");
+    RCLCPP_WARN(logger_, "Failed to read gripper position, effort, or speed");
     return hardware_interface::return_type::ERROR;
   }
 
   position_state_ = degrees_to_meters(angle_deg);
-  velocity_state_ = 0.0;  // dummy velocity (required by controller)
+  velocity_state_ = static_cast<double>(speed); 
   effort_state_ = static_cast<double>(effort);
 
   return hardware_interface::return_type::OK;
