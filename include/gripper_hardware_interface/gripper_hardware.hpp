@@ -37,6 +37,7 @@ private:
   // ROS-side states (meters, meters/sec)
   double position_state_{0.0};
   double velocity_state_{0.0};
+  double effort_state_{0.0};
 
   // ROS-side command (meters)
   double position_command_{0.0};

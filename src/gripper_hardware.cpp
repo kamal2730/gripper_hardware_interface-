@@ -54,6 +54,11 @@ GripperHardware::export_state_interfaces()
     hardware_interface::HW_IF_VELOCITY,
     &velocity_state_);
 
+  state_interfaces.emplace_back(
+    info_.joints[0].name,
+    hardware_interface::HW_IF_EFFORT,
+    &effort_state_);
+
   return state_interfaces;
 }
 
@@ -74,15 +79,17 @@ hardware_interface::return_type
 GripperHardware::read(const rclcpp::Time &, const rclcpp::Duration &)
 {
   float angle_deg = 0.0f;
+  float effort = 0.0f;
 
-  if (!servo_->getPosition(angle_deg))
+  if (!servo_->getPosition(angle_deg) || !servo_->getEffort(effort))
   {
-    RCLCPP_WARN(logger_, "Failed to read gripper position");
+    RCLCPP_WARN(logger_, "Failed to read gripper position or effort");
     return hardware_interface::return_type::ERROR;
   }
 
   position_state_ = degrees_to_meters(angle_deg);
   velocity_state_ = 0.0;  // dummy velocity (required by controller)
+  effort_state_ = static_cast<double>(effort);
 
   return hardware_interface::return_type::OK;
 }
